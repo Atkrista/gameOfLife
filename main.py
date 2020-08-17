@@ -3,8 +3,8 @@ from random import random
 import string
 
 #height and width of the board
-WIDTH = 20
-HEIGHT = 10
+WIDTH = 5
+HEIGHT = 5
 
 def dead_state(w= HEIGHT, h= WIDTH):
     new_arr = np.zeros(shape=(w,h), dtype = int)
@@ -26,7 +26,9 @@ def random_state():
     return initial_state
 
 def render_state(state):
+    #making a new empty array
     new_arr = np.zeros(shape=(len(state), len(state[0])), dtype = str)
+    #Print '.' in board if cell state is 0, and '#' if cell state is 1
     for i in range(len(state)):
         for j in range(len(state[0])):
             if state[i, j] == 0:
@@ -36,62 +38,54 @@ def render_state(state):
     return new_arr
 
 
-
+#Muh Aesthetics!
 def print_board(arr):
     for i in range(len(arr)):
         for j in range(len(arr[0])):
             print('|' + arr[i][j] + '|', end ='')
         print()        
 
-def update_state(initial_state):
-    new_state = initial_state
-    for i in range(len(new_state)):
-        for j range(len(new_state[0])):
-            if ()(update_cell_state(initial_state[i][j]) == True):
-                new_state[i][j] = 
 
+#render new board state for next iteration of game of life
+def next_board_state(previous_state):
+    #creating a new dead state to append changes to
+    new_state = dead_state()
 
-
-def update_cell_state(cell):
-    if cell == 1:
-        cell_alive = True
+    #Function that tells us if we change the state of an individual cell or nah
+    def change_state(cell,i , j):
+        #As some indexes will be out of bounds
+        #Edge and corner cells dont have 8 neighbors
+        sum = 0
         try:
-        sum =(cell[i-1][j-1]+ cell[i-1][j] + cell[i-1][j+1] + cell[i][j-1]+ cell[i][j] + cell[i][j+1] +cell[i+1][j-1]+ cell[i+1][j] + cell[i+1][j+1])
+            sum =(cell[i-1][j-1]+ cell[i-1][j] + cell[i-1][j+1] + cell[i][j-1]+ cell[i][j] + cell[i][j+1] +cell[i+1][j-1]+ cell[i+1][j] + cell[i+1][j+1])
         except IndexError:
             cell[i][j] = 0
-        
-        if (cell_alive == True) AND (sum <= 1):
-            cell_next_state = False
-        elif (cell_alive == True) AND (sum == 2 OR sum == 3):
-            cell_next_state = True 
-        elif (cell_alive == True) AND (sum > 3):
-            cell_next_state = False
-    elif cell == 0:
-        cell_alive = False
-        try:
-        sum =(cell[i-1][j-1]+ cell[i-1][j] + cell[i-1][j+1] + cell[i][j-1]+ cell[i][j] + cell[i][j+1] +cell[i+1][j-1]+ cell[i+1][j] + cell[i+1][j+1])
-        except IndexError:
-            cell[i][j] = 0
-
-        if(cell_alive == False) AND (sum == 3):
-            cell_next_state = True        
-    
-
-    return cell_next_state    
+        #change state if neighbors = 3 dead or alive
+        if (sum > 3):
+            return True
 
 
-
-
-
-
+    for i in range(len(previous_state)):
+        for j in range(len(previous_state[0])):
+            if previous_state[i][j] == 1:
+                if change_state(previous_state, i, j) == True:
+                    new_state[i][j] = 0
+            else:
+                if change_state(previous_state, i, j)== True:
+                    new_state[i][j] = 1
+    return new_state
 
 board1 = random_state()
-board2 = dead_state()
+board2 = next_board_state(board1)
 
 rendered1 = render_state(board1)
 rendered2 = render_state(board2)
 
 print_board(rendered1)
+print()
+print()
+print()
+print_board(rendered2)
 
 
     
