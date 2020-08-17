@@ -3,11 +3,18 @@ from random import random
 import string
 
 #height and width of the board
-WIDTH = 5
-HEIGHT = 5
+WIDTH = 10
+HEIGHT = 10
 
-def dead_state(w= HEIGHT, h= WIDTH):
-    new_arr = np.zeros(shape=(w,h), dtype = int)
+#Muh Aesthetics!
+def print_board(arr):
+    for i in range(len(arr)):
+        for j in range(len(arr[0])):
+            print('|' + arr[i][j] + '|', end ='')
+        print()        
+
+def dead_state(h= HEIGHT, w= WIDTH):
+    new_arr = np.zeros(shape=(h,w ), dtype = int)
     return new_arr
 
 def random_state():
@@ -38,21 +45,13 @@ def render_state(state):
     return new_arr
 
 
-#Muh Aesthetics!
-def print_board(arr):
-    for i in range(len(arr)):
-        for j in range(len(arr[0])):
-            print('|' + arr[i][j] + '|', end ='')
-        print()        
-
-
 #render new board state for next iteration of game of life
 def next_board_state(previous_state):
     #creating a new dead state to append changes to
     new_state = dead_state()
 
     #Function that tells us if we change the state of an individual cell or nah
-    def change_state(cell,i , j):
+    def change_state(cell, i, j):
         #As some indexes will be out of bounds
         #Edge and corner cells dont have 8 neighbors
         sum = 0
@@ -60,11 +59,19 @@ def next_board_state(previous_state):
             sum =(cell[i-1][j-1]+ cell[i-1][j] + cell[i-1][j+1] + cell[i][j-1]+ cell[i][j] + cell[i][j+1] +cell[i+1][j-1]+ cell[i+1][j] + cell[i+1][j+1])
         except IndexError:
             cell[i][j] = 0
-        #change state if neighbors = 3 dead or alive
-        if (sum > 3):
-            return True
-
-
+        #if cell is alive initially
+        if cell[i][j] == 1:
+            if (sum == 0)  or (sum == 1):
+                return False
+            elif (sum == 2) or (sum == 3):
+                return False
+            elif (sum > 3):
+                return True
+        elif cell[i][j] == 0:
+            if(sum == 3):
+                return True
+            
+    #Code that actually changes states of cells
     for i in range(len(previous_state)):
         for j in range(len(previous_state[0])):
             if previous_state[i][j] == 1:
@@ -75,17 +82,18 @@ def next_board_state(previous_state):
                     new_state[i][j] = 1
     return new_state
 
-board1 = random_state()
-board2 = next_board_state(board1)
 
-rendered1 = render_state(board1)
-rendered2 = render_state(board2)
+if __name__ == "__main__":
+    board1 = random_state()
+    board2 = next_board_state(board1)
 
-print_board(rendered1)
-print()
-print()
-print()
-print_board(rendered2)
+    rendered1 = render_state(board1)
+    rendered2 = render_state(board2)
+
+    print_board(rendered1)
+    print()
+    print()
+    print_board(rendered2)
 
 
     
