@@ -1,99 +1,113 @@
+#dimensions of the board
+import random
 import numpy as np
-from random import random
-import string
+import time
 
-#height and width of the board
-WIDTH = 10
 HEIGHT = 10
-
-#Muh Aesthetics!
-def print_board(arr):
-    for i in range(len(arr)):
-        for j in range(len(arr[0])):
-            print('|' + arr[i][j] + '|', end ='')
-        print()        
-
-def dead_state(h= HEIGHT, w= WIDTH):
-    new_arr = np.zeros(shape=(h,w ), dtype = int)
-    return new_arr
-
-def random_state():
-    #Initializing a board of empty cells
-    initial_state = dead_state()
-
-    #Randomising state of the cells to either 0 or 1
-    for i in range(len(initial_state)):
-        for j in range(len(initial_state[0])):
-            seed = random()
-            if seed >= 0.5:
-                initial_state[i][j] = 0
-            else:
-                initial_state[i][j] = 1
-
-    return initial_state
-
-def render_state(state):
-    #making a new empty array
-    new_arr = np.zeros(shape=(len(state), len(state[0])), dtype = str)
-    #Print '.' in board if cell state is 0, and '#' if cell state is 1
-    for i in range(len(state)):
-        for j in range(len(state[0])):
-            if state[i, j] == 0:
-                new_arr[i][j] = '.'
-            else:
-                new_arr[i][j] = '#'
-    return new_arr
+WIDTH = 10
 
 
-#render new board state for next iteration of game of life
-def next_board_state(previous_state):
-    #creating a new dead state to append changes to
-    new_state = dead_state()
+def dead_state():
+    #list = [[0 for _ in range(HEIGHT)] for _ in range(WIDTH)]
+    list = np.zeros(shape = (HEIGHT, WIDTH), dtype = int)
+    return list
 
-    #Function that tells us if we change the state of an individual cell or nah
-    def change_state(cell, i, j):
-        #As some indexes will be out of bounds
-        #Edge and corner cells dont have 8 neighbors
-        sum = 0
-        try:
-            sum =(cell[i-1][j-1]+ cell[i-1][j] + cell[i-1][j+1] + cell[i][j-1]+ cell[i][j] + cell[i][j+1] +cell[i+1][j-1]+ cell[i+1][j] + cell[i+1][j+1])
-        except IndexError:
-            cell[i][j] = 0
-        #if cell is alive initially
-        if cell[i][j] == 1:
-            if (sum == 0)  or (sum == 1):
-                return False
-            elif (sum == 2) or (sum == 3):
-                return False
-            elif (sum > 3):
-                return True
-        elif cell[i][j] == 0:
-            if(sum == 3):
-                return True
-            
-    #Code that actually changes states of cells
-    for i in range(len(previous_state)):
-        for j in range(len(previous_state[0])):
-            if previous_state[i][j] == 1:
-                if change_state(previous_state, i, j) == True:
-                    new_state[i][j] = 0
-            else:
-                if change_state(previous_state, i, j)== True:
-                    new_state[i][j] = 1
+def is_alive(cell, i, j):
+    if cell[i][j] == 1:
+        return True
+    else:
+        return False
+
+def initial_state():
+    initial = dead_state()
+    for i in range(HEIGHT):
+        for j in range(WIDTH):
+            if random.random() > 0.5 :
+                initial[i][j] = 1
+            else: 
+                initial[i][j] = 0 
+    return initial
+
+def change_state(cell, i, j):
+    #if cell is Alive
+    state = cell
+    sum = 0 
+    #Exception for index error
+    try:
+        sum = (state[i-1][j-1] + state[i-1][j] + state[i-1][j+1] + state[i][j-1] +
+        state[i][j] +state[i][j+1]+ state[i+1][j+1] + state[i+1][j+1] + state[i+1][j+1])
+
+    except IndexError:
+        state[i][j] = 0
+
+    if is_alive(state,i ,j) and (sum == 0 or sum == 1):
+        return True
+
+    elif is_alive(state,i ,j) and (sum == 2 or sum == 3):
+        return False
+
+    elif is_alive(state,i ,j) and (sum > 3):    
+        return True
+
+    elif not(is_alive(state,i ,j)) and (sum == 3) :
+        return True
+    else:
+        return False
+
+def next_state(previous_state):
+    new_state = previous_state
+
+    #for each cell in previous state
+    for i in range(HEIGHT):
+        for j in range(WIDTH):
+            if(change_state(new_state, i, j) == True):
+                if new_state[i][j] == 1:
+                    new_state[i][j] == 0
+                else:
+                    new_state[i][j] == 1        
+
     return new_state
 
 
-if __name__ == "__main__":
-    board1 = random_state()
-    board2 = next_board_state(board1)
+def render_board(state):
+    cell =  state
+    #print the top border
+    print('+' + WIDTH * '--' + '+')
 
-    rendered1 = render_state(board1)
-    rendered2 = render_state(board2)
+    #print the rest of the board
+    for i in range(HEIGHT):
+        print("|", end = '')
+        for j in range(WIDTH):
+            if is_alive(cell, i, j):
+                print('# ', end = '')
+            elif not(is_alive(cell, i, j)):
+                print('  ', end = '')
+        print("|", end ='')
+        print()
 
-    print_board(rendered1)
-    print()
-    print()
-    print_board(rendered2)
+    #print the bottom border
+    print('+' + WIDTH * '--' + '+')
 
 
-    
+if __name__ == '__main__':
+    #initialize the empty state
+    old_state = initial_state()
+
+    condition = True
+
+    render_board(old_state)
+
+    new = next_state(old_state)
+
+    render_board(new)
+
+    # #Run forever
+    # while(condition):
+    #     #print the state
+    #     render_board(old_state)
+    #     new_state = next_state(old_state)
+    #     time.sleep(0.5)
+    #     render_board(new_state)
+    #     old_state = new_state
+        
+                
